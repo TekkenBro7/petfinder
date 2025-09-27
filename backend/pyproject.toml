@@ -1,0 +1,60 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "PetFinder API"
+authors = [
+    {name = "Maxim",email = "maks.kreet@mail.ru"}
+]
+readme = "README.md"
+requires-python = ">=3.13,<4.0"
+dependencies = [
+    "django (>=5.2.6,<6.0.0)",
+    "djangorestframework (>=3.16.1,<4.0.0)",
+    "django-cors-headers (>=4.9.0,<5.0.0)",
+    "django-filter (>=25.1,<26.0)",
+    "djangorestframework-simplejwt (>=5.5.1,<6.0.0)",
+    "pillow (>=11.3.0,<12.0.0)",
+    "psycopg2-binary (>=2.9.10,<3.0.0)",
+    "whitenoise (>=6.11.0,<7.0.0)",
+    "django-environ (>=0.12.0,<0.13.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.13.2"
+mypy = "^1.18.2"
+django-stubs = "^5.2.5"
+djangorestframework-stubs = "^3.16.3"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = [
+    "backend/migrations",
+    "backend/__pycache__",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "DJ"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+plugins = ["mypy_django_plugin.main"]
+exclude = 'backend/migrations/.*|backend/settings/.*'
+
+[tool.django-stubs]
+django_settings_module = "backend.settings"
+strict_settings = false

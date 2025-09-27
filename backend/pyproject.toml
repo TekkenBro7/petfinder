@@ -34,8 +34,18 @@ djangorestframework-stubs = "^3.16.3"
 line-length = 100
 target-version = "py312"
 exclude = [
-    "backend/migrations",
-    "backend/__pycache__",
+    "**/migrations/**",
+    "**/__pycache__/**",
+    "**/*.pyc",
+    ".git",
+    ".ruff_cache",
+    "build",
+    "dist",
+    "*.egg-info",
+    "env",
+    ".env",
+    ".venv",
+    "venv"
 ]
 
 [tool.ruff.lint]
@@ -53,7 +63,7 @@ warn_unused_configs = true
 disallow_untyped_defs = true
 ignore_missing_imports = true
 plugins = ["mypy_django_plugin.main"]
-exclude = 'backend/migrations/.*|backend/settings/.*'
+exclude = 'backend/.*/migrations/.*|backend/settings/.*'
 
 [tool.django-stubs]
 django_settings_module = "backend.settings"

@@ -1,10 +1,21 @@
+from datetime import timedelta
 from pathlib import Path
 
 import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env(DEBUG=(bool, False), ALLOWED_HOSTS=(list, []), DB_PORT=(int, 5432))
+env = environ.Env(
+    DEBUG=(bool, False),
+    ALLOWED_HOSTS=(list, []),
+    DB_PORT=(int, 5432),
+    JWT_ACCESS_TOKEN_LIFETIME_SECONDS=(int, 3600),
+    JWT_REFRESH_TOKEN_LIFETIME_SECONDS=(int, 86400),
+    JWT_ROTATE_REFRESH_TOKENS=(bool, True),
+    JWT_BLACKLIST_AFTER_ROTATION=(bool, True),
+    JWT_UPDATE_LAST_LOGIN=(bool, True),
+)
+
 environ.Env.read_env(BASE_DIR / ".env", overwrite=True, encoding="utf-8")
 
 SECRET_KEY = env("SECRET_KEY")
@@ -15,12 +26,16 @@ ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
 
 INSTALLED_APPS = [
+    "users",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
 ]
 
 
@@ -28,7 +43,6 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -53,9 +67,7 @@ TEMPLATES = [
     },
 ]
 
-
 WSGI_APPLICATION = "backend.wsgi.application"
-
 
 DATABASES = {
     "default": {
@@ -68,6 +80,7 @@ DATABASES = {
     }
 }
 
+AUTH_USER_MODEL = "users.User"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -84,6 +97,22 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(seconds=env("JWT_ACCESS_TOKEN_LIFETIME_SECONDS")),  # type: ignore
+    "REFRESH_TOKEN_LIFETIME": timedelta(seconds=env("JWT_REFRESH_TOKEN_LIFETIME_SECONDS")),  # type: ignore
+    "ROTATE_REFRESH_TOKENS": env("JWT_ROTATE_REFRESH_TOKENS"),
+    "BLACKLIST_AFTER_ROTATION": env("JWT_BLACKLIST_AFTER_ROTATION"),
+    "UPDATE_LAST_LOGIN": env("JWT_UPDATE_LAST_LOGIN"),
+}
 
 MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"

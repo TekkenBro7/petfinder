@@ -2,6 +2,7 @@ import re
 
 import phonenumbers
 from django.core.exceptions import ValidationError
+from rest_framework import serializers
 
 
 def validate_phone(value: str) -> None:
@@ -16,3 +17,9 @@ def validate_phone(value: str) -> None:
             raise ValidationError("Only Russian and Belarusian numbers are supported..")
     except phonenumbers.NumberParseException:
         raise ValidationError("Incorrect phone number format.")
+
+
+def validate_username(value: str) -> str:
+    if len(value) < 3:
+        raise serializers.ValidationError("Username must be at least 3 characters long")
+    return value

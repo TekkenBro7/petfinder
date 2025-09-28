@@ -2,6 +2,7 @@ from typing import Any
 
 from rest_framework import serializers
 
+from users import validators
 from users.models import User
 
 
@@ -33,6 +34,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "username", "password", "phone", "first_name"]
+
+    def validate_username(self, value: str) -> str:
+        return validators.validate_username(value)
 
     def create(self, validated_data: dict[str, Any]) -> User:
         password = validated_data.pop("password")

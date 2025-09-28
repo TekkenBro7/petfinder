@@ -27,6 +27,7 @@ ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
 INSTALLED_APPS = [
     "users",
+    "ads",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

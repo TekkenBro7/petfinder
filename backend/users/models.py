@@ -14,10 +14,8 @@ class User(AbstractUser):
     )
 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="user")
-    phone = models.CharField(
-        max_length=15, blank=True, default="", unique=True, validators=[validate_phone]
-    )
-    email = models.EmailField(unique=True, blank=True, null=True) # type: ignore
+    phone = models.CharField(max_length=15, unique=True, validators=[validate_phone])
+    email = models.EmailField(unique=True, blank=True, null=True)  # type: ignore
 
     class Meta:
         verbose_name = "User"

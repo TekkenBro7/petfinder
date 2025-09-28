@@ -388,6 +388,18 @@ files = [
 ]
 
 [[package]]
+name = "phonenumbers"
+version = "9.0.15"
+description = "Python version of Google's common library for parsing, formatting, storing and validating international phone numbers."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "phonenumbers-9.0.15-py2.py3-none-any.whl", hash = "sha256:269b73bc05258e8fd57582770b9559307099ea677c8f1dc5272476f661344776"},
+    {file = "phonenumbers-9.0.15.tar.gz", hash = "sha256:345ff7f23768332d866f37732f815cdf1d33c7f0961246562a5c5b78c12c3ff3"},
+]
+
+[[package]]
 name = "pillow"
 version = "11.3.0"
 description = "Python Imaging Library (Fork)"
@@ -763,4 +775,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<4.0"
-content-hash = "3711b2d83a0c83bd142f3c7a15b03b5496f2be239caa0efa2f7df4977f09189d"
+content-hash = "86e5d2b274e1e7d1cceabb47b74e79c6dd432016e396b747c9369d09b7523158"

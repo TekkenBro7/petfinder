@@ -1,0 +1,16 @@
+*.log
+*.pyc
+*.pyo
+__pycache__/
+.mypy_cache/
+.ruff_cache/
+
+.env.example
+venv
+
+.git/
+.gitignore
+
+media/
+
+.cache/

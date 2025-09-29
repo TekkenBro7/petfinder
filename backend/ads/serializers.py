@@ -38,6 +38,7 @@ class PetAdSerializer(serializers.ModelSerializer):
     animal_type_id = serializers.PrimaryKeyRelatedField(
         queryset=AnimalType.objects.all(), source="animal_type", write_only=True
     )
+    is_active = serializers.BooleanField(default=True)
 
     class Meta:
         model = PetAd

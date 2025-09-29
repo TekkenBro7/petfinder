@@ -18,7 +18,8 @@ services:
     build: ./backend
     restart: unless-stopped
     command: > 
-      sh -c "python manage.py migrate && 
+      sh -c "python manage.py makemigrations &&
+              python manage.py migrate && 
              python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend:/app
@@ -30,6 +31,18 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    env_file:
+      - ./frontend/.env
+    depends_on:
+      - backend
+    restart: unless-stopped
 
 volumes:
   postgres_data:

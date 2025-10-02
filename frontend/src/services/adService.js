@@ -12,12 +12,22 @@ class AdService {
   }
 
   async createAd(adData) {
-    const response = await client.post('/ads/', adData);
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    };
+    const response = await client.post('/ads/', adData, config);
     return response.data;
   }
 
   async updateAd(adId, adData) {
-    const response = await client.patch(`/ads/${adId}/`, adData);
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    };
+    const response = await client.patch(`/ads/${adId}/`, adData, config);
     return response.data;
   }
 
@@ -27,11 +37,6 @@ class AdService {
 
   async searchAds(searchParams) {
     const response = await client.get('/ads/', { params: searchParams });
-    return response.data;
-  }
-
-  async getMyAds() {
-    const response = await client.get('/ads/my-ads/');
     return response.data;
   }
 

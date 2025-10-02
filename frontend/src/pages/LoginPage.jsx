@@ -20,9 +20,11 @@ const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  
-  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
-  
+
+  const { loading, error, isAuthenticated } = useSelector(
+    (state) => state.auth
+  );
+
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -89,10 +91,9 @@ const LoginPage = () => {
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
           {error && (
             <Alert severity="error" sx={{ mb: 3 }}>
-              {typeof error === 'object' 
+              {typeof error === 'object'
                 ? error.detail || 'Ошибка авторизации'
-                : error
-              }
+                : error}
             </Alert>
           )}
 
@@ -141,13 +142,13 @@ const LoginPage = () => {
             variant="contained"
             disabled={loading}
             startIcon={loading ? <CircularProgress size={20} /> : <Login />}
-            sx={{ 
-              py: 1.5, 
-              fontSize: '1.1rem', 
+            sx={{
+              py: 1.5,
+              fontSize: '1.1rem',
               fontWeight: 600,
               '&:disabled': {
                 backgroundColor: 'grey.300',
-              }
+              },
             }}
           >
             {loading ? 'Вход...' : 'Войти'}

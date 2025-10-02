@@ -30,7 +30,9 @@ import { registerUser, clearError } from '../store/authSlice';
 const RegisterPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
+  const { loading, error, isAuthenticated } = useSelector(
+    (state) => state.auth
+  );
 
   const [formData, setFormData] = useState({
     username: '',
@@ -82,7 +84,7 @@ const RegisterPage = () => {
     }
 
     setFormErrors(errors);
-    
+
     return Object.keys(errors).length === 0;
   };
 
@@ -149,10 +151,9 @@ const RegisterPage = () => {
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
           {error && (
             <Alert severity="error" sx={{ mb: 3 }}>
-              {typeof error === 'object' 
+              {typeof error === 'object'
                 ? Object.values(error).flat().join(', ') || 'Ошибка регистрации'
-                : error
-              }
+                : error}
             </Alert>
           )}
 

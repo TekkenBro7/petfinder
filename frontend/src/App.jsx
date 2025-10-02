@@ -12,6 +12,12 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Footer from './components/layout/Footer';
+import AdminPage from './pages/AdminPage';
+import CreateAdPage from './pages/CreateAdPage';
+import ProfilePage from './pages/ProfilePage';
+import AdDetailPage from './pages/AdDetailPage';
+import SearchPage from './pages/SearchPage';
+import EditAdPage from './pages/EditAdPage';
 
 function App() {
   const dispatch = useDispatch();
@@ -34,29 +40,42 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
-              
-              <Route 
-                path="/profile" 
+
+              <Route
+                path="/profile"
                 element={
                   <ProtectedRoute>
-                    <div style={{ padding: '2rem', textAlign: 'center' }}>
-                      <h1>Профиль пользователя</h1>
-                      <p>Добро пожаловать в ваш профиль!</p>
-                    </div>
+                    <ProfilePage />
                   </ProtectedRoute>
-                } 
+                }
               />
-              <Route 
-                path="/create-ad" 
+              <Route
+                path="/create-ad"
                 element={
                   <ProtectedRoute>
-                    <div style={{ padding: '2rem', textAlign: 'center' }}>
-                      <h1>Создание объявления</h1>
-                      <p>Форма создания объявления будет здесь</p>
-                    </div>
+                    <CreateAdPage />
                   </ProtectedRoute>
-                } 
+                }
               />
+              <Route
+                path="/ad/:id"
+                element={
+                  <ProtectedRoute>
+                    <AdDetailPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/edit-ad/:id"
+                element={
+                  <ProtectedRoute>
+                    <EditAdPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/search" element={<SearchPage />} />
+
+              <Route path="/admin" element={<AdminPage />} />
             </Routes>
           </div>
           <Footer />

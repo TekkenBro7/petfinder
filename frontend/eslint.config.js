@@ -58,7 +58,7 @@ export default [
       ...js.configs.recommended.rules,
       ...react.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
-      
+
       'no-console': env === 'production' ? 'warn' : 'off',
 
       'react/react-in-jsx-scope': 'off',

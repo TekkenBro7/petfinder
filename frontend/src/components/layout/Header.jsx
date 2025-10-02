@@ -18,6 +18,7 @@ import {
   Person,
   Menu as MenuIcon,
   Add,
+  AdminPanelSettings,
 } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -54,13 +55,15 @@ const Header = () => {
     navigate('/profile');
   };
 
-  const headerGradient = mode === 'light' 
-    ? 'linear-gradient(135deg, #413d86 0%, #667eea 100%)'
-    : 'linear-gradient(135deg, #1e293b 0%, #334155 100%)';
+  const headerGradient =
+    mode === 'light'
+      ? 'linear-gradient(135deg, #413d86 0%, #667eea 100%)'
+      : 'linear-gradient(135deg, #1e293b 0%, #334155 100%)';
 
-  const textGradient = mode === 'light'
-    ? 'linear-gradient(45deg, #fff, #e0e7ff)'
-    : 'linear-gradient(45deg, #f1f5f9, #cbd5e1)';
+  const textGradient =
+    mode === 'light'
+      ? 'linear-gradient(45deg, #fff, #e0e7ff)'
+      : 'linear-gradient(45deg, #f1f5f9, #cbd5e1)';
 
   return (
     <AppBar
@@ -123,7 +126,7 @@ const Header = () => {
                 >
                   <MenuIcon />
                 </IconButton>
-                
+
                 <Menu
                   id="menu-appbar"
                   anchorEl={anchorEl}
@@ -145,8 +148,18 @@ const Header = () => {
                   </MenuItem>
                   <MenuItem onClick={handleLogout}>
                     <Logout sx={{ mr: 1 }} />
-                      Log out
+                    Log out
                   </MenuItem>
+                  {user?.role === 'admin' && (
+                    <MenuItem
+                      component={Link}
+                      to="/admin"
+                      onClick={handleClose}
+                    >
+                      <AdminPanelSettings sx={{ mr: 1 }} />
+                      Admin panel
+                    </MenuItem>
+                  )}
                 </Menu>
               </>
             ) : (
@@ -195,4 +208,4 @@ const Header = () => {
   );
 };
 
-export default Header; 
+export default Header;

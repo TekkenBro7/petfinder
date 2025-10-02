@@ -22,13 +22,15 @@ import { useSelector } from 'react-redux';
 const HomePage = () => {
   const { mode } = useSelector((state) => state.theme);
 
-  const heroGradient = mode === 'light'
-    ? 'linear-gradient(135deg, #413d86 0%, #667eea 100%)'
-    : 'linear-gradient(135deg, #1e293b 0%, #334155 100%)';
+  const heroGradient =
+    mode === 'light'
+      ? 'linear-gradient(135deg, #413d86 0%, #667eea 100%)'
+      : 'linear-gradient(135deg, #1e293b 0%, #334155 100%)';
 
-  const textGradient = mode === 'light'
-    ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
-    : 'linear-gradient(135deg, #818cf8 0%, #a5b4fc 100%)';
+  const textGradient =
+    mode === 'light'
+      ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+      : 'linear-gradient(135deg, #818cf8 0%, #a5b4fc 100%)';
 
   return (
     <Box sx={{ minHeight: '100vh' }}>
@@ -60,9 +62,8 @@ const HomePage = () => {
               margin: '0 auto',
             }}
           >
-            PetFinder — This is a community of people who help 
-            to find and bring lost animals home. Join us and
-            Save lives!
+            PetFinder — This is a community of people who help to find and bring
+            lost animals home. Join us and Save lives!
           </Typography>
           <Box
             sx={{
@@ -126,8 +127,8 @@ const HomePage = () => {
           variant="h4"
           align="center"
           gutterBottom
-          sx={{ 
-            fontWeight: 600, 
+          sx={{
+            fontWeight: 600,
             mb: 6,
             background: textGradient,
             backgroundClip: 'text',

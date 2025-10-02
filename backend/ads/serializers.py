@@ -97,7 +97,10 @@ class PetAdSerializer(serializers.ModelSerializer):
                 photo.image.delete(save=False)
                 photo.delete()
 
-            for photo in uploaded_photos:
-                PetPhoto.objects.create(ad=instance, image=photo)
+            if (uploaded_photos and 
+                hasattr(uploaded_photos[0], 'name') and 
+                uploaded_photos[0].name != 'delete_all_photos.png'):
+                for photo in uploaded_photos:
+                    PetPhoto.objects.create(ad=instance, image=photo)
 
         return instance

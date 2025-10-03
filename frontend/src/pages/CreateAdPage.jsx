@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Container,
   Paper,
@@ -22,6 +22,7 @@ import {
   StepLabel,
   StepContent,
   useTheme,
+  Autocomplete,
 } from '@mui/material';
 import {
   AddPhotoAlternate,
@@ -60,6 +61,10 @@ const CreateAdPage = () => {
   const [success, setSuccess] = useState('');
   const [activeStep, setActiveStep] = useState(0);
   const [fieldErrors, setFieldErrors] = useState({});
+  const [addressSuggestions, setAddressSuggestions] = useState([]);
+  const [addressLoading, setAddressLoading] = useState(false);
+  const [apiError, setApiError] = useState('');
+  const addressTimeoutRef = useRef(null);
 
   const steps = [
     'Basic Information',
@@ -79,6 +84,125 @@ const CreateAdPage = () => {
     } catch (error) {
       console.error('Error loading animal types:', error);
     }
+  };
+
+  const fetchAddressSuggestions = async (query) => {
+    if (!query || query.length < 2) {
+      setAddressSuggestions([]);
+      setApiError('');
+      return;
+    }
+
+    setAddressLoading(true);
+    setApiError('');
+
+    try {
+      const response = await fetch(
+        `/api/yandex/suggest/?q=${encodeURIComponent(query)}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      console.log('Response status:', response.status);
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Expected JSON but got:', contentType);
+        console.error('Response preview:', text.substring(0, 200));
+        throw new Error(
+          `Server returned ${contentType || 'unknown content-type'}`
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('API Response data:', data);
+
+      if (data.results) {
+        const suggestions = data.results.map((item) => ({
+          displayName: item.title?.text || '',
+          fullAddress: item.subtitle?.text || '',
+          value: `${item.title?.text || ''}${item.subtitle?.text ? `, ${item.subtitle.text}` : ''}`,
+          type: 'geo',
+        }));
+        setAddressSuggestions(suggestions);
+      } else {
+        setAddressSuggestions([]);
+      }
+    } catch (error) {
+      console.error('Error fetching address suggestions:', error);
+      setApiError(`Ошибка загрузки подсказок: ${error.message}`);
+      setAddressSuggestions([]);
+    } finally {
+      setAddressLoading(false);
+    }
+  };
+
+  const getObjectTypeLabel = (type) => {
+    const typeLabels = {
+      street: 'Улица',
+      house: 'Дом',
+      city: 'Город',
+      district: 'Район',
+      area: 'Область',
+      region: 'Регион',
+      other: 'Адрес',
+    };
+    return typeLabels[type] || 'Адрес';
+  };
+
+  const handleLocationInputChange = (event, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      location: value || '',
+    }));
+
+    setApiError('');
+
+    if (addressTimeoutRef.current) {
+      clearTimeout(addressTimeoutRef.current);
+    }
+
+    if (value && value.length >= 2) {
+      addressTimeoutRef.current = setTimeout(() => {
+        fetchAddressSuggestions(value);
+      }, 500);
+    } else {
+      setAddressSuggestions([]);
+    }
+  };
+
+  const handleAddressSelect = (event, value) => {
+    if (value) {
+      setFormData((prev) => ({
+        ...prev,
+        location: value.value || value,
+      }));
+    }
+    setAddressSuggestions([]);
+    setApiError('');
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    setFieldErrors((prev) => ({
+      ...prev,
+      [name]: [],
+    }));
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const validateTitle = (value) => {
@@ -158,20 +282,6 @@ const CreateAdPage = () => {
     });
 
     return errors;
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-
-    setFieldErrors((prev) => ({
-      ...prev,
-      [name]: [],
-    }));
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
   };
 
   const handlePhotoUpload = (e) => {
@@ -569,22 +679,91 @@ const CreateAdPage = () => {
           <Box sx={{ mt: 2 }}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  label="Location Where Lost"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleInputChange}
-                  placeholder="Example: Moscow, Tverskaya street"
-                  helperText="Specify the exact address or area where the pet was lost"
-                  error={
-                    fieldErrors.location && fieldErrors.location.length > 0
+                {/* Поле автодополнения адреса */}
+                <Autocomplete
+                  freeSolo
+                  options={addressSuggestions}
+                  getOptionLabel={(option) =>
+                    typeof option === 'string'
+                      ? option
+                      : option.displayName || ''
                   }
-                  {...(fieldErrors.location && {
-                    helperText: fieldErrors.location[0],
-                  })}
+                  value={formData.location}
+                  onInputChange={handleLocationInputChange}
+                  onChange={handleAddressSelect}
+                  loading={addressLoading}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      required
+                      fullWidth
+                      label="Место пропажи"
+                      placeholder="Начните вводить адрес (улица, дом, район, город)..."
+                      helperText="Укажите точный адрес или район, где пропал питомец"
+                      error={
+                        fieldErrors.location && fieldErrors.location.length > 0
+                      }
+                      {...(fieldErrors.location && {
+                        helperText: fieldErrors.location[0],
+                      })}
+                      InputProps={{
+                        ...params.InputProps,
+                        startAdornment: (
+                          <LocationOn sx={{ mr: 1, color: 'text.secondary' }} />
+                        ),
+                        endAdornment: (
+                          <React.Fragment>
+                            {addressLoading ? (
+                              <CircularProgress color="inherit" size={20} />
+                            ) : null}
+                            {params.InputProps.endAdornment}
+                          </React.Fragment>
+                        ),
+                      }}
+                    />
+                  )}
+                  renderOption={(props, option) => (
+                    <li {...props}>
+                      <Box sx={{ width: '100%' }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'flex-start',
+                          }}
+                        >
+                          <Box sx={{ flex: 1 }}>
+                            <Typography variant="body2" fontWeight="medium">
+                              {option.displayName}
+                            </Typography>
+                            {option.fullAddress && (
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                display="block"
+                              >
+                                {option.fullAddress}
+                              </Typography>
+                            )}
+                          </Box>
+                          <Chip
+                            label={getObjectTypeLabel(option.type)}
+                            size="small"
+                            color="primary"
+                            variant="outlined"
+                          />
+                        </Box>
+                      </Box>
+                    </li>
+                  )}
                 />
+
+                {apiError && (
+                  <Alert severity="warning" sx={{ mt: 1 }}>
+                    {apiError}
+                  </Alert>
+                )}
+
               </Grid>
 
               <Grid item xs={12} sm={6}>

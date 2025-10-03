@@ -7,6 +7,8 @@ from ads.views import (
     FavoriteAdViewSet,
     PetAdViewSet,
     PetPhotoViewSet,
+    yandex_geocode_proxy,
+    yandex_suggest_proxy,
 )
 
 router = DefaultRouter()
@@ -19,4 +21,6 @@ router.register("favorites", FavoriteAdViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("yandex/suggest/", yandex_suggest_proxy, name="yandex-suggest"),
+    path("yandex/geocode/", yandex_geocode_proxy, name="yandex-geocode"),
 ]

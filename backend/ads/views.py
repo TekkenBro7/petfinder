@@ -1,6 +1,7 @@
+import requests
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, serializers, status, viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 
@@ -114,3 +115,61 @@ class FavoriteAdViewSet(viewsets.ModelViewSet):
         is_favorited = FavoriteAd.objects.filter(user=request.user, ad_id=ad_id).exists()
 
         return Response({"is_favorited": is_favorited})
+
+
+@api_view(["GET"])
+@permission_classes([permissions.AllowAny])
+def yandex_suggest_proxy(request):
+    query = request.GET.get("q", "")
+    if not query:
+        return Response(
+            {"error": 'Query parameter "q" is required'}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    YANDEX_API_KEY = "4e3e1ff5-0841-4d61-bbff-02a27e5cfc2a"
+
+    url = "https://suggest-maps.yandex.ru/v1/suggest"
+    params = {
+        "apikey": YANDEX_API_KEY,
+        "text": query,
+        "lang": "ru_RU",
+        "results": 10,
+        "type": "geo",
+    }
+
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        return Response(response.json())
+    except requests.exceptions.Timeout:
+        return Response({"error": "Request timeout"}, status=status.HTTP_408_REQUEST_TIMEOUT)
+    except requests.exceptions.RequestException as e:
+        return Response(
+            {"error": f"Yandex API error: {str(e)}"}, status=status.HTTP_502_BAD_GATEWAY
+        )
+
+
+@api_view(["GET"])
+@permission_classes([permissions.AllowAny])
+def yandex_geocode_proxy(request):
+    query = request.GET.get("q", "")
+    if not query:
+        return Response(
+            {"error": 'Query parameter "q" is required'}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    YANDEX_API_KEY = "4e3e1ff5-0841-4d61-bbff-02a27e5cfc2a"
+
+    url = "https://geocode-maps.yandex.ru/1.x/"
+    params = {"apikey": YANDEX_API_KEY, "geocode": query, "format": "json", "results": 10}
+
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        return Response(response.json())
+    except requests.exceptions.Timeout:
+        return Response({"error": "Request timeout"}, status=status.HTTP_408_REQUEST_TIMEOUT)
+    except requests.exceptions.RequestException as e:
+        return Response(
+            {"error": f"Yandex API error: {str(e)}"}, status=status.HTTP_502_BAD_GATEWAY
+        )

@@ -4,10 +4,8 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 COPY . .
 
-RUN npm run build
-
-CMD [ "npm", "run", "dev" ]
+CMD [ "npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000" ]

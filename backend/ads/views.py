@@ -1,9 +1,11 @@
 import requests
+import os
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
+from django.conf import settings
 
 from ads.filters import PetAdFilter
 from ads.models import AnimalType, Comment, FavoriteAd, PetAd, PetPhoto
@@ -126,7 +128,7 @@ def yandex_suggest_proxy(request):
             {"error": 'Query parameter "q" is required'}, status=status.HTTP_400_BAD_REQUEST
         )
 
-    YANDEX_API_KEY = "4e3e1ff5-0841-4d61-bbff-02a27e5cfc2a"
+    YANDEX_API_KEY = os.environ.get('YANDEX_API_KEY', '')
 
     url = "https://suggest-maps.yandex.ru/v1/suggest"
     params = {
@@ -158,7 +160,7 @@ def yandex_geocode_proxy(request):
             {"error": 'Query parameter "q" is required'}, status=status.HTTP_400_BAD_REQUEST
         )
 
-    YANDEX_API_KEY = "4e3e1ff5-0841-4d61-bbff-02a27e5cfc2a"
+    YANDEX_API_KEY = os.environ.get('YANDEX_API_KEY', '')
 
     url = "https://geocode-maps.yandex.ru/1.x/"
     params = {"apikey": YANDEX_API_KEY, "geocode": query, "format": "json", "results": 10}

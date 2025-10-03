@@ -63,7 +63,6 @@ const EditAdPage = () => {
   const [photosToDelete, setPhotosToDelete] = useState([]);
   const [errors, setErrors] = useState({});
 
-  // Добавляем состояния для Autocomplete
   const [addressSuggestions, setAddressSuggestions] = useState([]);
   const [addressLoading, setAddressLoading] = useState(false);
   const [apiError, setApiError] = useState('');
@@ -112,7 +111,6 @@ const EditAdPage = () => {
     }
   };
 
-  // Добавляем функцию для получения подсказок адресов
   const fetchAddressSuggestions = async (query) => {
     if (!query || query.length < 2) {
       setAddressSuggestions([]);
@@ -125,7 +123,7 @@ const EditAdPage = () => {
 
     try {
       const response = await fetch(
-        `/api/yandex/suggest/?q=${encodeURIComponent(query)}`,
+        `http://127.0.0.1:8000/api/yandex/suggest/?q=${encodeURIComponent(query)}`,
         {
           headers: {
             Accept: 'application/json',
@@ -173,11 +171,10 @@ const EditAdPage = () => {
     }
   };
 
-  // Функция для обработки изменения ввода адреса
   const handleLocationInputChange = (event, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      location: value || ''
+      location: value || '',
     }));
 
     setApiError('');
@@ -195,12 +192,11 @@ const EditAdPage = () => {
     }
   };
 
-  // Функция для выбора адреса из подсказок
   const handleAddressSelect = (event, value) => {
     if (value) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        location: value.value || value
+        location: value.value || value,
       }));
     }
     setAddressSuggestions([]);
@@ -209,11 +205,11 @@ const EditAdPage = () => {
 
   const getObjectTypeLabel = (type) => {
     const typeLabels = {
-      'street': 'Улица',
-      'house': 'Дом',
-      'city': 'Город',
-      'district': 'Район',
-      'other': 'Адрес'
+      street: 'Улица',
+      house: 'Дом',
+      city: 'Город',
+      district: 'Район',
+      other: 'Адрес',
     };
     return typeLabels[type] || 'Адрес';
   };
@@ -582,8 +578,10 @@ const EditAdPage = () => {
                   freeSolo
                   options={addressSuggestions}
                   loading={addressLoading}
-                  getOptionLabel={(option) => 
-                    typeof option === 'string' ? option : option.displayName || ''
+                  getOptionLabel={(option) =>
+                    typeof option === 'string'
+                      ? option
+                      : option.displayName || ''
                   }
                   value={formData.location}
                   onInputChange={handleLocationInputChange}
@@ -599,10 +597,14 @@ const EditAdPage = () => {
                       {...(errors.location && { helperText: errors.location })}
                       InputProps={{
                         ...params.InputProps,
-                        startAdornment: <LocationOn sx={{ mr: 1, color: 'text.secondary' }} />,
+                        startAdornment: (
+                          <LocationOn sx={{ mr: 1, color: 'text.secondary' }} />
+                        ),
                         endAdornment: (
                           <React.Fragment>
-                            {addressLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                            {addressLoading ? (
+                              <CircularProgress color="inherit" size={20} />
+                            ) : null}
                             {params.InputProps.endAdornment}
                           </React.Fragment>
                         ),
@@ -613,22 +615,32 @@ const EditAdPage = () => {
                   renderOption={(props, option) => (
                     <li {...props}>
                       <Box sx={{ width: '100%' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'flex-start',
+                          }}
+                        >
                           <Box sx={{ flex: 1 }}>
                             <Typography variant="body2" fontWeight="medium">
                               {option.displayName}
                             </Typography>
                             {option.fullAddress && (
-                              <Typography variant="caption" color="text.secondary" display="block">
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                display="block"
+                              >
                                 {option.fullAddress}
                               </Typography>
                             )}
                           </Box>
-                          <Chip 
-                            label={getObjectTypeLabel(option.type)} 
-                            size="small" 
-                            color="primary" 
-                            variant="outlined" 
+                          <Chip
+                            label={getObjectTypeLabel(option.type)}
+                            size="small"
+                            color="primary"
+                            variant="outlined"
                           />
                         </Box>
                       </Box>
@@ -677,7 +689,6 @@ const EditAdPage = () => {
             </Grid>
           </Box>
 
-          {/* Остальной код остается без изменений */}
           <Box sx={{ mb: 4 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <AddPhotoAlternate sx={{ mr: 1, color: 'primary.main' }} />

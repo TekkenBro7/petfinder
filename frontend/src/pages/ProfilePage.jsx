@@ -59,7 +59,7 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [favoritesLoading, setFavoritesLoading] = useState(false);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState(0); // 0 - мои объявления, 1 - избранные
+  const [activeTab, setActiveTab] = useState(0);
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
@@ -103,7 +103,6 @@ const ProfilePage = () => {
     try {
       setFavoritesLoading(true);
       const favoritesData = await favoriteService.getMyFavorites();
-      // Извлекаем объявления из объектов избранного
       const ads = favoritesData.results
         ? favoritesData.results.map((fav) => fav.ad)
         : favoritesData.map((fav) => fav.ad);

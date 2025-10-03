@@ -98,7 +98,7 @@ const CreateAdPage = () => {
 
     try {
       const response = await fetch(
-        `/api/yandex/suggest/?q=${encodeURIComponent(query)}`,
+        `http://127.0.0.1:8000/api/yandex/suggest/?q=${encodeURIComponent(query)}`,
         {
           headers: {
             Accept: 'application/json',
@@ -679,7 +679,6 @@ const CreateAdPage = () => {
           <Box sx={{ mt: 2 }}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                {/* Поле автодополнения адреса */}
                 <Autocomplete
                   freeSolo
                   options={addressSuggestions}

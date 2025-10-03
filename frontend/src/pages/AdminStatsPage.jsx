@@ -364,7 +364,6 @@ const AdminStatsPage = () => {
               </Paper>
             </Grid>
 
-            {/* Топ типов животных */}
             <Grid item xs={12} md={6}>
               <Paper sx={{ p: 3 }}>
                 <Typography
@@ -406,7 +405,6 @@ const AdminStatsPage = () => {
               </Paper>
             </Grid>
 
-            {/* Топ локаций */}
             <Grid item xs={12} md={6}>
               <Paper sx={{ p: 3 }}>
                 <Typography

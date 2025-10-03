@@ -34,12 +34,15 @@ import {
   AdminPanelSettings,
   Person as PersonIcon,
   Search,
+  TrendingUp,
 } from '@mui/icons-material';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import userService from '../services/userService';
 
 const AdminUsersPage = () => {
   const { user: authUser } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
 
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -258,17 +261,35 @@ const AdminUsersPage = () => {
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
       <Box sx={{ mb: 4 }}>
-        <Typography
-          variant="h3"
-          component="h1"
-          gutterBottom
-          sx={{ fontWeight: 'bold' }}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 2,
+          }}
         >
-          User Management
-        </Typography>
-        <Typography variant="h6" color="text.secondary">
-          Manage platform users and their permissions
-        </Typography>
+          <Box>
+            <Typography
+              variant="h3"
+              component="h1"
+              gutterBottom
+              sx={{ fontWeight: 'bold' }}
+            >
+              User Management
+            </Typography>
+            <Typography variant="h6" color="text.secondary">
+              Manage platform users and their permissions
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            onClick={() => navigate('/admin/stats')}
+            startIcon={<TrendingUp />}
+          >
+            View Statistics
+          </Button>
+        </Box>
       </Box>
 
       {error && (
@@ -340,13 +361,13 @@ const AdminUsersPage = () => {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
                     <CircularProgress />
                   </TableCell>
                 </TableRow>
               ) : paginatedUsers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
                     <Typography variant="h6" color="text.secondary">
                       No users found
                     </Typography>
@@ -364,7 +385,7 @@ const AdminUsersPage = () => {
                         <PersonIcon sx={{ mr: 2, color: 'text.secondary' }} />
                         <Box>
                           <Typography variant="subtitle1" fontWeight="bold">
-                            {user.first_name}
+                            {user.first_name || user.username}
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
                             @{user.username}

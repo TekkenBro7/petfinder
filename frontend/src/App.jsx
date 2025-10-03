@@ -18,6 +18,7 @@ import ProfilePage from './pages/ProfilePage';
 import AdDetailPage from './pages/AdDetailPage';
 import SearchPage from './pages/SearchPage';
 import EditAdPage from './pages/EditAdPage';
+import AdminStatsPage from './pages/AdminStatsPage';
 
 function App() {
   const dispatch = useDispatch();
@@ -75,7 +76,22 @@ function App() {
               />
               <Route path="/search" element={<SearchPage />} />
 
-              <Route path="/admin" element={<AdminPage />} />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <AdminPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/stats"
+                element={
+                  <ProtectedRoute>
+                    <AdminStatsPage />
+                  </ProtectedRoute>
+                }
+              />
             </Routes>
           </div>
           <Footer />

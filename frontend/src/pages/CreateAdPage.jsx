@@ -132,24 +132,27 @@ const CreateAdPage = () => {
     return errors;
   };
 
-  const validatePhotos = (photos) => {
+  const validatePhotos = (photosArray) => {
     const errors = [];
 
-    if (photos.length > 10) {
+    if (photosArray.length > 10) {
       errors.push('You cannot upload more than 10 photos.');
     }
 
-    const allowedTypes = ['image/jpeg', 'image/png'];
-    photos.forEach((photo) => {
-      if (!allowedTypes.includes(photo.file.type)) {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+
+    photosArray.forEach((photo) => {
+      const file = photo.file || photo;
+
+      if (!allowedTypes.includes(file.type)) {
         errors.push(
-          `Invalid file type: ${photo.file.type}. Allowed types: JPEG, PNG`
+          `Invalid file type: ${file.type}. Allowed types: JPEG, PNG`
         );
       }
 
-      if (photo.file.size > 5 * 1024 * 1024) {
+      if (file.size > 5 * 1024 * 1024) {
         errors.push(
-          `File ${photo.file.name} is too large. Maximum allowed size: 5MB.`
+          `File ${file.name} is too large. Maximum allowed size: 5MB.`
         );
       }
     });
@@ -174,7 +177,9 @@ const CreateAdPage = () => {
   const handlePhotoUpload = (e) => {
     const files = Array.from(e.target.files);
 
-    const photoErrors = validatePhotos([...photos, ...files]);
+    const tempPhotos = [...photos.map((p) => p.file), ...files];
+
+    const photoErrors = validatePhotos(tempPhotos);
     if (photoErrors.length > 0) {
       setFieldErrors((prev) => ({
         ...prev,

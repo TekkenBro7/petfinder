@@ -112,7 +112,6 @@ const SearchPage = () => {
       );
     }
 
-    // Фильтр по дате "от"
     if (filters.date_lost_from) {
       filteredAds = filteredAds.filter(
         (ad) => new Date(ad.date_lost) >= new Date(filters.date_lost_from)
@@ -430,7 +429,6 @@ const SearchPage = () => {
                         },
                       }}
                     >
-                      {/* Photo */}
                       {ad.photos?.[0] ? (
                         <CardMedia
                           component="img"
@@ -502,11 +500,10 @@ const SearchPage = () => {
                         </Typography>
                       </CardContent>
 
-                      {/* Action Button */}
                       <Box sx={{ p: 2 }}>
                         <Button
                           component={Link}
-                          to={`/ads/${ad.id}`}
+                          to={`/ad/${ad.id}`}
                           variant="outlined"
                           fullWidth
                         >

@@ -17,6 +17,13 @@ import {
   CardMedia,
   IconButton,
   Divider,
+  TextField,
+  Avatar,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  ListItemSecondaryAction,
 } from '@mui/material';
 import {
   Pets,
@@ -28,11 +35,17 @@ import {
   Delete,
   ArrowBack,
   Person,
+  Send,
+  MoreVert,
 } from '@mui/icons-material';
+import Favorite from '@mui/icons-material/Favorite';
+import FavoriteBorder from '@mui/icons-material/FavoriteBorder';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import adService from '../services/adService';
+import commentService from '../services/commentService';
+import favoriteService from '../services/favoriteService';
 
 const AdDetailPage = () => {
   const { id } = useParams();
@@ -41,13 +54,52 @@ const AdDetailPage = () => {
   const { user: authUser } = useSelector((state) => state.auth);
 
   const [ad, setAd] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [submittingComment, setSubmittingComment] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
+
+  useEffect(() => {
+    if (authUser) {
+      checkFavoriteStatus();
+    }
+  }, [authUser]);
+
+  const checkFavoriteStatus = async () => {
+    try {
+      const result = await favoriteService.checkFavorite(id);
+      setIsFavorited(result.is_favorited);
+    } catch (error) {
+      console.error('Error checking favorite status:', error);
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!authUser) {
+      navigate('/login');
+      return;
+    }
+
+    setFavoriteLoading(true);
+    try {
+      const result = await favoriteService.toggleFavorite(id);
+      setIsFavorited(result.is_favorited);
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
 
   useEffect(() => {
     loadAd();
+    loadComments();
   }, [id]);
 
   const loadAd = async () => {
@@ -63,11 +115,55 @@ const AdDetailPage = () => {
     }
   };
 
+  const loadComments = async () => {
+    try {
+      setCommentsLoading(true);
+      const commentsData = await commentService.getCommentsByAd(id);
+      setComments(commentsData);
+    } catch (error) {
+      console.error('Error loading comments:', error);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
+  const handleAddComment = async () => {
+    if (!newComment.trim()) {
+      return;
+    }
+
+    setSubmittingComment(true);
+    try {
+      const comment = await commentService.createComment(id, newComment.trim());
+      setComments((prev) => [comment, ...prev]);
+      setNewComment('');
+      setSuccess('Comment added successfully!');
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      setError('Failed to add comment');
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await commentService.deleteComment(commentId);
+      setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+      setSuccess('Comment deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      setError('Failed to delete comment');
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
@@ -187,13 +283,13 @@ const AdDetailPage = () => {
       </Box>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
+        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError('')}>
           {error}
         </Alert>
       )}
 
       {success && (
-        <Alert severity="success" sx={{ mb: 3 }}>
+        <Alert severity="success" sx={{ mb: 3 }} onClose={() => setSuccess('')}>
           {success}
         </Alert>
       )}
@@ -350,8 +446,115 @@ const AdDetailPage = () => {
                 Updated: {formatDate(ad.updated_at)}
               </Typography>
             </Box>
+            <Box mt={2}>
+              <Button
+                variant={isFavorited ? 'contained' : 'outlined'}
+                color="warning"
+                onClick={handleToggleFavorite}
+                disabled={favoriteLoading}
+                startIcon={isFavorited ? <Favorite /> : <FavoriteBorder />}
+              >
+                {isFavorited ? 'In Favorites' : 'Add to Favorites'}
+              </Button>
+            </Box>
           </Grid>
         </Grid>
+      </Paper>
+
+      <Paper elevation={3} sx={{ p: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          Comments ({comments.length})
+        </Typography>
+
+        {authUser && (
+          <Box sx={{ mb: 4 }}>
+            <TextField
+              fullWidth
+              multiline
+              rows={3}
+              placeholder="Add a comment..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              variant="outlined"
+              sx={{ mb: 2 }}
+            />
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button
+                variant="contained"
+                endIcon={<Send />}
+                onClick={handleAddComment}
+                disabled={!newComment.trim() || submittingComment}
+              >
+                {submittingComment ? (
+                  <CircularProgress size={24} />
+                ) : (
+                  'Add Comment'
+                )}
+              </Button>
+            </Box>
+          </Box>
+        )}
+
+        <Divider sx={{ mb: 3 }} />
+
+        {commentsLoading ? (
+          <Box display="flex" justifyContent="center" sx={{ py: 4 }}>
+            <CircularProgress />
+          </Box>
+        ) : comments.length === 0 ? (
+          <Box textAlign="center" sx={{ py: 4 }}>
+            <Typography variant="h6" color="text.secondary">
+              No comments yet
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Be the first to comment on this advertisement
+            </Typography>
+          </Box>
+        ) : (
+          <List>
+            {comments.map((comment) => (
+              <ListItem key={comment.id} alignItems="flex-start">
+                <ListItemAvatar>
+                  <Avatar>
+                    <Person />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="subtitle1" component="span">
+                        {comment.author}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {formatDate(comment.created_at)}
+                      </Typography>
+                    </Box>
+                  }
+                  secondary={
+                    <Typography
+                      variant="body1"
+                      sx={{ mt: 1, whiteSpace: 'pre-wrap' }}
+                    >
+                      {comment.text}
+                    </Typography>
+                  }
+                />
+                {(comment.author_id === authUser?.id || isOwner) && (
+                  <ListItemSecondaryAction>
+                    <IconButton
+                      edge="end"
+                      color="error"
+                      onClick={() => handleDeleteComment(comment.id)}
+                      size="small"
+                    >
+                      <Delete />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                )}
+              </ListItem>
+            ))}
+          </List>
+        )}
       </Paper>
 
       <Dialog

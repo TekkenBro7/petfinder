@@ -5,7 +5,7 @@ from django.core.files.uploadedfile import UploadedFile
 from rest_framework import serializers
 
 from ads import validators
-from ads.models import AnimalType, PetAd, PetPhoto
+from ads.models import AnimalType, Comment, FavoriteAd, PetAd, PetPhoto
 
 
 class AnimalTypeSerializer(serializers.ModelSerializer):
@@ -97,10 +97,56 @@ class PetAdSerializer(serializers.ModelSerializer):
                 photo.image.delete(save=False)
                 photo.delete()
 
-            if (uploaded_photos and 
-                hasattr(uploaded_photos[0], 'name') and 
-                uploaded_photos[0].name != 'delete_all_photos.png'):
+            if (
+                uploaded_photos
+                and hasattr(uploaded_photos[0], "name")
+                and uploaded_photos[0].name != "delete_all_photos.png"
+            ):
                 for photo in uploaded_photos:
                     PetPhoto.objects.create(ad=instance, image=photo)
 
         return instance
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.StringRelatedField(read_only=True)
+    author_id = serializers.PrimaryKeyRelatedField(source="author", read_only=True)
+    ad_id = serializers.PrimaryKeyRelatedField(
+        queryset=PetAd.objects.all(), source="ad", write_only=True
+    )
+    ad = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = [
+            "id",
+            "text",
+            "author",
+            "author_id",
+            "ad",
+            "ad_id",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "author", "author_id", "ad", "created_at", "updated_at"]
+
+    def validate_text(self, value: str) -> str:
+        if not value.strip():
+            raise serializers.ValidationError("Comment text cannot be empty.")
+        if len(value.strip()) < 2:
+            raise serializers.ValidationError("Comment must be at least 2 characters long.")
+        if len(value) > 1000:
+            raise serializers.ValidationError("Comment cannot exceed 1000 characters.")
+        return value.strip()
+
+
+class FavoriteAdSerializer(serializers.ModelSerializer):
+    ad = PetAdSerializer(read_only=True)
+    ad_id = serializers.PrimaryKeyRelatedField(
+        queryset=PetAd.objects.all(), source="ad", write_only=True
+    )
+
+    class Meta:
+        model = FavoriteAd
+        fields = ["id", "ad", "ad_id", "created_at"]
+        read_only_fields = ["id", "ad", "created_at"]
